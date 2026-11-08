@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Livre des Souvenirs — Édition imprimable</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;1,500;1,700&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@400;500&display=swap">
+<style>
+/* Livret A5 : 24 pages = 6 feuilles A4 paysage, recto-verso, pliées en deux.
+   Toutes les dimensions du livre sont en --mm (1mm à l'impression, des px à l'écran). */
+:root {
+  --bg: #0b0d17;
+  --bg-glow: #151a33;
+  --fg: #e9e4d8;
+  --muted: #8f93a8;
+  --paper: #efe4cf;
+  --paper-2: #e2d3b6;
+  --ink: #2a2118;
+  --cover: #4b1020;
+  --cover-hi: #7b2237;
+  --gold: #e0bc6a;
+  --holo: #6ff2e2;
+  --line: rgba(233, 228, 216, .16);
+  --font-display: "Bodoni Moda", "Didot", Georgia, serif;
+  --font-body: "Jost", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+body.nocream { --paper: #ffffff; --paper-2: #fbf9f4; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; background: var(--bg);
+  background-image: radial-gradient(90% 50% at 50% 0%, var(--bg-glow), transparent 70%);
+  background-repeat: no-repeat;
+  color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
+}
+.wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* ---------- Interface (écran uniquement) ---------- */
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.label { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.title { margin: 0; font: italic 700 clamp(26px, 5vw, 38px)/1.1 var(--font-display); color: var(--fg); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (min-width: 1100px) {
+  .layout { grid-template-columns: 400px minmax(0, 1fr); }
+  .side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 6px; }
+}
+.side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel { display: flex; flex-direction: column; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.03); }
+.panel h2 { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--holo); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > span { font: 500 11px/1.2 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+input[type="text"], textarea {
+  font: 400 15px/1.35 var(--font-body); color: var(--fg); background: rgba(255,255,255,.06);
+  border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; min-height: 44px; width: 100%;
+}
+textarea { resize: vertical; min-height: 64px; }
+input::placeholder, textarea::placeholder { color: rgba(233,228,216,.38); }
+button, .filebtn {
+  font: 500 13px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--fg); background: rgba(255,255,255,.05); border: 1px solid var(--line);
+  padding: 12px 16px; min-height: 44px; border-radius: 3px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; position: relative;
+}
+button:hover, .filebtn:hover { border-color: var(--holo); color: var(--holo); }
+button.primary { background: var(--holo); color: #04201f; border-color: var(--holo); }
+button.primary:hover { background: #a2fff4; color: #04201f; }
+button[aria-pressed="true"] { border-color: var(--holo); color: var(--holo); background: rgba(111,242,226,.1); }
+button:focus-visible, .filebtn:focus-within, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--holo); outline-offset: 2px; }
+.filebtn input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.check input { margin-top: 4px; width: 18px; height: 18px; accent-color: #6ff2e2; flex: none; }
+.check small { display: block; color: var(--muted); font-size: 13px; }
+
+.slots { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.slot-title { margin: 0 0 6px; font: 500 11px/1.2 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.slot-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.slot { position: relative; min-width: 0; }
+.slot .thumb { width: 100%; aspect-ratio: 3 / 4; padding: 0; min-height: 0; border-radius: 3px; background-size: cover; background-position: center; border: 1px solid var(--line); position: relative; overflow: hidden; display: block; }
+.slot .thumb span { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 0; font: 500 11px/1 var(--font-mono); background: rgba(5,10,20,.75); color: var(--fg); text-align: center; }
+.slot .thumb.custom { border-color: var(--holo); }
+.slot .rm { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; min-height: 0; padding: 0; border-radius: 50%; background: rgba(5,10,20,.85); font-size: 16px; line-height: 1; letter-spacing: 0; }
+.msg { margin: 0; min-height: 1.4em; font: 500 12px/1.4 var(--font-mono); color: var(--holo); }
+.hint { margin: 0; font-size: 13px; color: var(--muted); }
+.hint code { font: 500 12px var(--font-mono); color: var(--fg); background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 3px; }
+.drop-on { outline: 2px dashed var(--holo); outline-offset: 6px; }
+
+/* Panneau des textes */
+.tgroup { border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.02); }
+.tgroup > summary { cursor: pointer; padding: 12px 14px; font: 500 12px/1.3 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--fg); list-style-position: inside; }
+.tgroup[open] > summary { color: var(--holo); border-bottom: 1px solid var(--line); }
+.tbody { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+.capblock { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
+.capblock:last-child { border-bottom: 0; padding-bottom: 0; }
+.capblock > b { font: 500 11px/1.2 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+details.guide { border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; background: rgba(255,255,255,.03); }
+details.guide summary { cursor: pointer; font: 500 12px/1.4 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--holo); }
+details.guide ol { margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; max-width: 75ch; }
+details.guide li b { color: var(--fg); font-weight: 500; }
+details.guide li { color: var(--muted); }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 20; padding: 8px 0; background: var(--bg); }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Zone d'aperçu ---------- */
+#views { width: 100%; max-width: 1000px; margin: 0 auto; --mm: 3px; }
+.view { display: flex; flex-direction: column; gap: calc(var(--mm) * 10); }
+body[data-view="pages"] #viewSheets { display: none; }
+body[data-view="sheets"] #viewPages { display: none; }
+.spread-label, .sheet-label { margin: 0 0 8px; font: 500 11px/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.spread-pages { display: flex; width: calc(var(--mm) * 297); }
+.spread-pages.r { justify-content: flex-end; }
+.spread-pages.l { justify-content: flex-start; }
+.pg-empty { width: calc(var(--mm) * 148.5); height: calc(var(--mm) * 210); flex: none; }
+.sheet { position: relative; display: flex; width: calc(var(--mm) * 297); height: calc(var(--mm) * 210); background: #fff; box-shadow: 0 8px 28px rgba(0,0,0,.5); }
+.fold-tick { display: none; position: absolute; left: 50%; width: 1px; height: calc(var(--mm) * 3); background: #8a8a8a; z-index: 5; }
+.fold-tick.t { top: 0; } .fold-tick.b { bottom: 0; }
+body.safe .fold-tick { display: block; }
+
+/* ---------- Pages du livre (A5 : 148,5 × 210 mm) ---------- */
+.pg { --u: calc(var(--mm) * 1.485); position: relative; flex: none; width: calc(var(--mm) * 148.5); height: calc(var(--mm) * 210); background: #fff; overflow: hidden; color: var(--ink); }
+.spread-pages .pg { box-shadow: 0 6px 22px rgba(0,0,0,.45); }
+.pg-in { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; }
+/* Marge de sécurité : sur les bords extérieurs seulement, jamais côté pli (dos) */
+body.safe .pg[data-side="L"] .pg-in { inset: calc(var(--mm) * 5) 0 calc(var(--mm) * 5) calc(var(--mm) * 5); }
+body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) * 5) calc(var(--mm) * 5) 0; }
+
+/* Couverture */
+.cover-face {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.1), transparent 42%),
+    radial-gradient(120% 90% at 28% 18%, var(--cover-hi), var(--cover) 72%);
+  align-items: center; justify-content: space-between;
+  padding: calc(var(--u) * 9) calc(var(--u) * 7); text-align: center; color: var(--gold);
+}
+.cover-face::before {
+  content: ""; position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.cover-frame { position: absolute; inset: calc(var(--u) * 4); border: 1px solid rgba(224,188,106,.7); pointer-events: none; }
+.cover-frame::after { content: ""; position: absolute; inset: calc(var(--u) * 1.4); border: 1px solid rgba(224,188,106,.35); }
+.spine-shade { position: absolute; inset: 0 auto 0 0; width: 9%; background: linear-gradient(90deg, rgba(0,0,0,.45), transparent); pointer-events: none; }
+.spine-shade.r { inset: 0 0 0 auto; background: linear-gradient(270deg, rgba(0,0,0,.45), transparent); }
+.foil { color: #d9b25a; background: linear-gradient(120deg, #f3dc9a, #c99a3e 45%, #f6e5ae 60%, #b88a30); -webkit-background-clip: text; background-clip: text; }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) { .foil { color: transparent; } }
+.cover-top, .cover-bottom { font: 500 calc(var(--u) * 3) / 1.3 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; position: relative; max-width: 100%; overflow-wrap: anywhere; }
+.cover-mid { display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 2.4); position: relative; max-width: 100%; }
+.cover-mid > * { max-width: 100%; overflow-wrap: anywhere; }
+.score { font: 700 calc(var(--u) * 22) / 1 var(--font-display); letter-spacing: -.02em; padding-bottom: calc(var(--u) * 1); }
+.cover-mid .joy { font: italic 500 calc(var(--u) * 7.5) / 1.1 var(--font-display); }
+.cover-mid .anni { font: 700 calc(var(--u) * 10.4) / 1.05 var(--font-display); letter-spacing: -.01em; }
+.cover-mid .rule { width: calc(var(--u) * 22); height: 1px; background: rgba(224,188,106,.7); }
+.cover-mid .nm { font: italic 500 calc(var(--u) * 8) / 1.1 var(--font-display); }
+
+/* Page de garde */
+.inside-face {
+  background:
+    repeating-linear-gradient(45deg, rgba(224,188,106,.12) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(-45deg, rgba(224,188,106,.12) 0 1px, transparent 1px 9px),
+    #3a0c19;
+  align-items: center; justify-content: center;
+}
+.label-card {
+  width: 74%; background: var(--paper); color: var(--ink); padding: calc(var(--u) * 7) calc(var(--u) * 5);
+  text-align: center; display: flex; flex-direction: column; gap: calc(var(--u) * 3);
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.label-card .tiny { font: 400 calc(var(--u) * 3) / 1.3 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; opacity: .6; overflow-wrap: anywhere; }
+.label-card .nm { font: italic 500 calc(var(--u) * 7.4) / 1.1 var(--font-display); overflow-wrap: anywhere; }
+
+/* Pages photo (droite) et légende (gauche) */
+.page-front {
+  background: linear-gradient(90deg, rgba(0,0,0,.2), transparent 13%), var(--paper);
+  gap: calc(var(--u) * 3.4);
+  padding: calc(var(--u) * 8) calc(var(--u) * 10) calc(var(--u) * 5) calc(var(--u) * 12);
+}
+.page-back {
+  background: linear-gradient(270deg, rgba(0,0,0,.2), transparent 13%), var(--paper-2);
+  align-items: center; justify-content: center; text-align: center;
+  gap: calc(var(--u) * 4); padding: calc(var(--u) * 10) calc(var(--u) * 12) calc(var(--u) * 10) calc(var(--u) * 10);
+}
+.print {
+  position: relative; flex: 1; min-height: 0; background-size: cover; background-position: center;
+  border: calc(var(--u) * 2.2) solid #fbf7ee; box-shadow: 0 2px 6px rgba(40,25,10,.35);
+  transform: rotate(var(--tilt, -1.2deg));
+}
+.print::before {
+  content: ""; position: absolute; top: calc(var(--u) * -4.4); left: 50%; width: calc(var(--u) * 20); height: calc(var(--u) * 6);
+  transform: translateX(-50%) rotate(-3deg); background: rgba(214,190,120,.65);
+}
+.pgmeta { display: flex; justify-content: space-between; gap: calc(var(--u) * 3); font: 400 calc(var(--u) * 3) / 1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; opacity: .65; }
+.page-back .tiny { font: 400 calc(var(--u) * 3) / 1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; opacity: .6; overflow-wrap: anywhere; }
+.page-back h3 { margin: 0; font: italic 500 calc(var(--u) * 9.6) / 1.1 var(--font-display); text-wrap: balance; overflow-wrap: anywhere; }
+.page-back .rule { width: calc(var(--u) * 14); height: 1px; background: var(--ink); opacity: .45; }
+.page-back p { margin: 0; font: 400 calc(var(--u) * 4.6) / 1.5 var(--font-body); max-width: 24ch; overflow-wrap: anywhere; }
+.page-back .pg-no { font: 400 calc(var(--u) * 3) / 1 var(--font-mono); opacity: .55; }
+
+/* Page de fin */
+.endp {
+  background: linear-gradient(90deg, rgba(0,0,0,.22), transparent 14%), var(--paper);
+  align-items: center; justify-content: center; text-align: center; gap: calc(var(--u) * 3);
+  padding: calc(var(--u) * 8) calc(var(--u) * 8) calc(var(--u) * 8) calc(var(--u) * 12); color: var(--ink);
+}
+.endp .big { font: italic 500 calc(var(--u) * 9) / 1.1 var(--font-display); text-wrap: balance; overflow-wrap: anywhere; }
+.endp .tiny { font: 400 calc(var(--u) * 3.4) / 1.3 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; opacity: .6; overflow-wrap: anywhere; }
+
+/* ---------- Impression ---------- */
+@page { size: 297mm 210mm; margin: 0; }
+@media print {
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; min-height: 0; }
+  .ui, .sheet-label, .spread-label, #viewPages { display: none !important; }
+  .wrap, .layout, .main { display: block; max-width: none; gap: 0; }
+  #views { --mm: 1mm !important; max-width: none; width: 297mm; margin: 0; }
+  #viewSheets { display: flex !important; gap: 0; }
+  .sheetbox { break-after: page; page-break-after: always; }
+  .sheetbox:last-child { break-after: auto; page-break-after: auto; }
+  .sheet { box-shadow: none; height: 209.5mm; overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body class="safe" data-view="pages">
+<main class="wrap">
+  <header class="top ui">
+    <h1 class="title">Le Livre des Souvenirs</h1>
+    <p class="label">Édition imprimable · Livret A5 · Anniversaires</p>
+  </header>
+
+  <div class="layout">
+    <aside class="side ui" aria-label="Personnaliser le livre">
+      <section class="panel" aria-label="Photos">
+        <h2>1 · Photos</h2>
+        <div class="row">
+          <label class="filebtn" for="photoInput24" id="lbl24">Ajouter photos 1<input type="file" id="photoInput24" accept="image/*" multiple></label>
+          <label class="filebtn" for="photoInput26" id="lbl26">Ajouter photos 2<input type="file" id="photoInput26" accept="image/*" multiple></label>
+          <button type="button" id="resetPhotos">Remettre les exemples</button>
+          <input type="file" id="slotInput" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1" aria-hidden="true">
+        </div>
+        <div class="slots" id="slots" role="group" aria-label="Les dix photos du livre"></div>
+        <p class="msg" id="msg" aria-live="polite"></p>
+        <p class="hint">Le livre compte deux chapitres de 5 photos. Ajoute les photos de chaque chapitre avec son bouton, en une ou plusieurs fois : chacune prend la prochaine place libre. Touche une vignette pour remplacer cette photo. Tes photos restent sur cet appareil.</p>
+      </section>
+
+      <section class="panel" aria-label="Textes">
+        <h2>2 · Textes</h2>
+        <div id="textPanel" class="row" style="flex-direction:column;align-items:stretch;gap:10px"></div>
+        <p class="hint">Écris <code>{prénom}</code> ou <code>{nom}</code> dans un texte pour y insérer automatiquement le prénom court ou le nom complet. L'aperçu se met à jour pendant que tu tapes, et il t'amène à la page concernée.</p>
+        <div class="row"><button type="button" id="resetTexts">Remettre les textes d'origine</button></div>
+      </section>
+
+      <section class="panel" aria-label="Options d'impression">
+        <h2>3 · Options</h2>
+        <label class="check"><input type="checkbox" id="optSafe" checked><span>Marge de sécurité de 5 mm<small>Recommandé : la plupart des imprimantes ne vont pas jusqu'au bord de la feuille. La marge est laissée sur les bords extérieurs, jamais au pli.</small></span></label>
+        <label class="check"><input type="checkbox" id="optCream" checked><span>Fond crème sur les pages<small>Décoche pour des pages blanches et économiser l'encre.</small></span></label>
+      </section>
+    </aside>
+
+    <section class="main">
+      <div class="bar ui">
+        <div class="seg" role="group" aria-label="Type d'aperçu">
+          <button type="button" id="vPages" aria-pressed="true">Livre (ordre de lecture)</button>
+          <button type="button" id="vSheets" aria-pressed="false">Feuilles à imprimer (12 faces)</button>
+        </div>
+        <div class="seg"><button type="button" id="animBtn">Prévisualiser l’animation</button><button type="button" id="printBtn" class="primary">Imprimer / Enregistrer en PDF</button></div>
+      </div>
+
+      <p class="hint ui">Le bouton « Prévisualiser l’animation » ouvre le fichier <b>Livre-des-Souvenirs-Animation.html</b> : garde les deux fichiers dans le même dossier.</p>
+
+      <div id="views">
+        <div class="view" id="viewPages"></div>
+        <div class="view" id="viewSheets"></div>
+      </div>
+
+      <details class="guide ui" open>
+        <summary>Comment imprimer et plier</summary>
+        <ol>
+          <li><b>Boîte d'impression :</b> papier <b>A4</b>, orientation <b>Paysage</b>, échelle <b>100 %</b> (pas « Ajuster à la page »), marges <b>Aucune</b>, option <b>Graphiques d'arrière-plan</b> cochée.</li>
+          <li><b>Recto-verso :</b> choisis « Retourner sur le bord court ». Fais d'abord un test avec la feuille 1 (pages 1 et 2 du PDF) : le verso doit être à l'endroit quand tu tournes la feuille comme une page de livre.</li>
+          <li><b>Sans recto-verso :</b> imprime d'abord les pages impaires (1, 3, 5…), remets les feuilles dans le bac, puis imprime les pages paires (2, 4, 6…). Teste avec une seule feuille pour trouver le bon sens du papier.</li>
+          <li><b>Pliage :</b> plie chaque feuille en deux, glisse-les les unes dans les autres (feuille 1 à l'extérieur, feuille 6 au centre), puis agrafe sur le pli.</li>
+        </ol>
+      </details>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var N = 10, TOTAL = 24;
+
+  /* ---------- Textes d'origine (neutres, thème anniversaire) ---------- */
+  var DEF_T = {
+    coverTop: 'Un jour à fêter', coverBig: '30', coverJoy: 'Joyeux', coverAnni: 'Anniversaire',
+    name: 'Camille', short: '', coverBottom: 'Album de souvenirs',
+    giftTop: 'Ce livre est offert à', giftBottom: 'pour ses 30 ans',
+    ch1: 'Hier', ch2: 'Aujourd\u2019hui',
+    endTiny: 'Fin du livre', endBig: 'Joyeux anniversaire, {prénom}',
+    backTop: 'Volume I', backT1: 'Le Livre', backT2: 'des Souvenirs', backName: '{prénom}', backBottom: 'Avec tout notre amour'
+  };
+  var DEF_C = [
+    { t: 'Les premiers souvenirs', s: 'Là où l\u2019aventure a commencé.' },
+    { t: 'Des éclats de rire', s: 'Avec toi, chaque moment compte.' },
+    { t: 'Toujours là', s: 'Tu penses toujours aux autres.' },
+    { t: 'Un regard, un sourire', s: 'Ta joie de vivre est contagieuse.' },
+    { t: 'Une belle année', s: 'Et ce n\u2019était que le début.' },
+    { t: 'Ta lumière', s: 'Tu éclaires les journées sans t\u2019en rendre compte.' },
+    { t: 'Tant d\u2019énergie', s: 'Avec toi, tout a un peu plus de couleur.' },
+    { t: 'Entre amis', s: 'Tu rends chaque moment plus léger.' },
+    { t: 'Simplement toi', s: 'Comme tu es, et c\u2019est parfait.' },
+    { t: 'On fête ça !', s: 'Joyeux anniversaire, que cette année soit belle.' }
+  ];
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  var T = clone(DEF_T), C = clone(DEF_C);
+
+  var views = document.getElementById('views');
+  var viewPages = document.getElementById('viewPages');
+  var viewSheets = document.getElementById('viewSheets');
+  var slotsEl = document.getElementById('slots');
+  var msgEl = document.getElementById('msg');
+  var slotInput = document.getElementById('slotInput');
+  var photoInput24 = document.getElementById('photoInput24');
+  var photoInput26 = document.getElementById('photoInput26');
+  var textPanel = document.getElementById('textPanel');
+  var slotTitleEls = [];
+  var targetSlot = -1;
+
+  /* ---------- Outils de texte ---------- */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function autoShort() { var p = String(T.name || '').split(/[\s-]+/).filter(Boolean); return p.length ? p[p.length - 1] : ''; }
+  function shortName() { return (T.short && T.short.trim()) || autoShort(); }
+  function sub(s) {
+    return String(s == null ? '' : s)
+      .replace(/\{pr[ée]nom\}/gi, function () { return shortName(); })
+      .replace(/\{nom\}/gi, function () { return T.name || ''; });
+  }
+  function tx(k) { return esc(sub(T[k])); }
+  function chapter(idx) { return idx < 5 ? (sub(T.ch1) || 'Chapitre 1') : (sub(T.ch2) || 'Chapitre 2'); }
+  function say(t) { msgEl.textContent = t; }
+
+  /* ---------- Photos d'exemple ---------- */
+  function makePlaceholder(i) {
+    var c = document.createElement('canvas'); c.width = 480; c.height = 640;
+    var g = c.getContext('2d');
+    var h = (345 + i * 47) % 360;
+    var grad = g.createLinearGradient(0, 0, 0, 640);
+    grad.addColorStop(0, 'hsl(' + h + ' 70% 72%)');
+    grad.addColorStop(1, 'hsl(' + ((h + 40) % 360) + ' 65% 38%)');
+    g.fillStyle = grad; g.fillRect(0, 0, 480, 640);
+    g.fillStyle = 'hsla(' + ((h + 60) % 360) + ' 90% 88% / .85)';
+    g.beginPath(); g.arc(360, 170, 64, 0, 7); g.fill();
+    g.fillStyle = 'hsl(' + ((h + 20) % 360) + ' 45% 28%)';
+    g.beginPath(); g.moveTo(0, 520); g.quadraticCurveTo(140, 430, 260, 500);
+    g.quadraticCurveTo(380, 560, 480, 470); g.lineTo(480, 640); g.lineTo(0, 640); g.fill();
+    var s = i * 97 + 13;
+    function rnd() { s = (s * 16807) % 2147483647; return s / 2147483647; }
+    for (var k = 0; k < 44; k++) {
+      g.save();
+      g.translate(rnd() * 480, rnd() * 400);
+      g.rotate(rnd() * 3);
+      g.fillStyle = 'hsl(' + Math.floor(rnd() * 360) + ' 90% 72%)';
+      g.fillRect(0, 0, 8, 14);
+      g.restore();
+    }
+    g.fillStyle = 'rgba(22,12,32,.8)';
+    g.beginPath(); g.arc(240, 300, 52, 0, 7); g.fill();
+    g.beginPath(); g.ellipse(240, 580, 118, 170, 0, Math.PI, 2 * Math.PI); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.92)';
+    g.font = '500 22px sans-serif'; g.textAlign = 'center';
+    g.fillText('exemple · photo ' + (i + 1), 240, 618);
+    return c.toDataURL('image/jpeg', 0.85);
+  }
+  var photos = [], placeholders = [], custom = [];
+  for (var p = 0; p < N; p++) { photos.push(makePlaceholder(p)); custom.push(null); }
+  placeholders = photos.slice();
+
+  /* Les photos sont stockées une seule fois, dans des variables CSS : --ph0 … --ph9 */
+  function setPhotoVars() {
+    for (var k = 0; k < N; k++) views.style.setProperty('--ph' + k, 'url("' + photos[k] + '")');
+  }
+
+  /* ---------- Contenu d'une page (n = 1 … 24) ---------- */
+  function pageContent(n) {
+    var i, idx;
+    if (n === 1) return { cls: 'cover-face', html:
+      '<div class="cover-frame"></div><div class="spine-shade"></div>' +
+      '<div class="cover-top foil">' + tx('coverTop') + '</div>' +
+      '<div class="cover-mid"><div class="score foil">' + tx('coverBig') + '</div>' +
+      '<div class="joy foil">' + tx('coverJoy') + '</div><div class="anni foil">' + tx('coverAnni') + '</div>' +
+      '<div class="rule"></div><div class="nm foil">' + tx('name') + '</div></div>' +
+      '<div class="cover-bottom foil">' + tx('coverBottom') + '</div>' };
+    if (n === 2) return { cls: 'inside-face', html:
+      '<div class="label-card"><span class="tiny">' + tx('giftTop') + '</span>' +
+      '<span class="nm">' + tx('name') + '</span><span class="tiny">' + tx('giftBottom') + '</span></div>' };
+    if (n >= 3 && n <= 22 && n % 2 === 1) {
+      i = (n - 1) / 2; idx = i - 1;
+      var tilt = (i % 2 ? -1.2 : 1.1) + 'deg';
+      return { cls: 'page-front', html:
+        '<div class="print" style="--tilt:' + tilt + ';background-image:var(--ph' + idx + ')"></div>' +
+        '<div class="pgmeta"><span>' + esc(chapter(idx)) + ' · ' + ((idx % 5) + 1) + '/5</span><span>' + n + '</span></div>' };
+    }
+    if (n >= 4 && n <= 22 && n % 2 === 0) {
+      i = (n - 2) / 2; idx = i - 1;
+      return { cls: 'page-back', html:
+        '<span class="tiny">' + esc(chapter(idx)) + '</span><h3>' + esc(sub(C[idx].t)) + '</h3><span class="rule"></span><p>' + esc(sub(C[idx].s)) + '</p><span class="pg-no">' + n + '</span>' };
+    }
+    if (n === 23) return { cls: 'endp', html:
+      '<span class="tiny">' + tx('endTiny') + '</span><span class="big">' + tx('endBig') + '</span>' };
+    return { cls: 'cover-face', html:
+      '<div class="cover-frame"></div><div class="spine-shade r"></div>' +
+      '<div class="cover-top foil">' + tx('backTop') + '</div>' +
+      '<div class="cover-mid"><div class="joy foil">' + tx('backT1') + '</div><div class="joy foil">' + tx('backT2') + '</div>' +
+      '<div class="rule"></div><div class="nm foil">' + tx('backName') + '</div></div>' +
+      '<div class="cover-bottom foil">' + tx('backBottom') + '</div>' };
+  }
+  function pageHTML(n) {
+    var c = pageContent(n), side = n % 2 === 0 ? 'L' : 'R';
+    return '<div class="pg" data-side="' + side + '" data-n="' + n + '"><div class="pg-in ' + c.cls + '">' + c.html + '</div></div>';
+  }
+  var EMPTY = '<div class="pg-empty"></div>';
+
+  /* ---------- Aperçu « livre » : pages dans l'ordre de lecture ---------- */
+  function renderPages() {
+    var h = '', k;
+    h += '<div class="spreadbox"><p class="spread-label">Couverture · page 1</p><div class="spread-pages r">' + EMPTY + pageHTML(1) + '</div></div>';
+    for (k = 1; k <= 11; k++) {
+      h += '<div class="spreadbox"><p class="spread-label">Pages ' + (2 * k) + ' – ' + (2 * k + 1) + '</p><div class="spread-pages">' + pageHTML(2 * k) + pageHTML(2 * k + 1) + '</div></div>';
+    }
+    h += '<div class="spreadbox"><p class="spread-label">4e de couverture · page 24</p><div class="spread-pages l">' + pageHTML(24) + EMPTY + '</div></div>';
+    viewPages.innerHTML = h;
+  }
+
+  /* ---------- Aperçu « feuilles » : imposition du livret ---------- */
+  function renderSheets() {
+    var h = '', k, sheets = TOTAL / 4;
+    for (k = 1; k <= sheets; k++) {
+      var fl = TOTAL - 2 * k + 2, fr = 2 * k - 1, bl = 2 * k, br = TOTAL - 2 * k + 1;
+      [['Recto', fl, fr], ['Verso', bl, br]].forEach(function (f) {
+        h += '<div class="sheetbox"><p class="sheet-label">Feuille ' + k + ' sur ' + sheets + ' · ' + f[0] + ' (pages ' + f[1] + ' | ' + f[2] + ')</p>' +
+          '<div class="sheet">' + pageHTML(f[1]) + pageHTML(f[2]) + '<i class="fold-tick t"></i><i class="fold-tick b"></i></div></div>';
+      });
+    }
+    viewSheets.innerHTML = h;
+  }
+  function render() { renderPages(); renderSheets(); }
+
+  function fit() {
+    var w = Math.min(views.clientWidth || 297, 1000);
+    views.style.setProperty('--mm', (w / 297).toFixed(4) + 'px');
+  }
+
+  /* ---------- Panneau des textes ---------- */
+  var GROUPS = [
+    { title: 'Couverture', open: true, f: [
+      ['coverTop', 'Haut de la couverture', 30, 1], ['coverBig', 'Grand nombre', 6, 1],
+      ['coverJoy', 'Premier mot', 20, 1], ['coverAnni', 'Second mot', 20, 1],
+      ['name', 'Nom complet', 24, 1], ['short', 'Prénom court (pour {prénom})', 20, 1],
+      ['coverBottom', 'Bas de la couverture', 40, 1] ] },
+    { title: 'Page de garde', f: [['giftTop', 'Début de phrase', 40, 2], ['giftBottom', 'Fin de phrase', 40, 2]] },
+    { title: 'Chapitres', f: [['ch1', 'Chapitre 1 (photos 1 à 5)', 24, 3], ['ch2', 'Chapitre 2 (photos 6 à 10)', 24, 13]] },
+    { title: 'Page de fin', f: [['endTiny', 'Petite ligne', 40, 23], ['endBig', 'Message', 60, 23]] },
+    { title: '4e de couverture', f: [
+      ['backTop', 'Haut', 30, 24], ['backT1', 'Titre, ligne 1', 24, 24], ['backT2', 'Titre, ligne 2', 24, 24],
+      ['backName', 'Nom', 24, 24], ['backBottom', 'Bas', 40, 24] ] }
+  ];
+  function fieldHTML(key, label, max, page) {
+    return '<label class="field"><span>' + label.replace(/\{pr[ée]nom\}/, '{prénom}') + '</span>' +
+      '<input type="text" data-key="' + key + '" data-page="' + page + '" maxlength="' + max + '" autocomplete="off"' +
+      (key === 'short' ? ' id="shortInput"' : '') + '></label>';
+  }
+  function buildTextPanel() {
+    var h = '';
+    GROUPS.forEach(function (g) {
+      h += '<details class="tgroup"' + (g.open ? ' open' : '') + '><summary>' + g.title + '</summary><div class="tbody">';
+      g.f.forEach(function (f) { h += fieldHTML(f[0], f[1], f[2], f[3]); });
+      h += '</div></details>';
+    });
+    h += '<details class="tgroup"><summary>Légendes des photos (10)</summary><div class="tbody">';
+    for (var i = 0; i < N; i++) {
+      var pg = 2 * (i + 1) + 2;
+      h += '<div class="capblock"><b>Photo ' + (i + 1) + '</b>' +
+        '<label class="field"><span>Titre</span><input type="text" data-cap="' + i + '" data-kind="t" data-page="' + pg + '" maxlength="40" autocomplete="off"></label>' +
+        '<label class="field"><span>Phrase</span><textarea data-cap="' + i + '" data-kind="s" data-page="' + pg + '" maxlength="110" rows="2"></textarea></label></div>';
+    }
+    h += '</div></details>';
+    textPanel.innerHTML = h;
+    syncTextInputs();
+  }
+  function syncTextInputs() {
+    var els = textPanel.querySelectorAll('[data-key]'), k;
+    for (k = 0; k < els.length; k++) els[k].value = T[els[k].getAttribute('data-key')] || '';
+    els = textPanel.querySelectorAll('[data-cap]');
+    for (k = 0; k < els.length; k++) els[k].value = C[+els[k].getAttribute('data-cap')][els[k].getAttribute('data-kind')] || '';
+    updShortPh(); updChapterLabels();
+  }
+  function updShortPh() { var el = document.getElementById('shortInput'); if (el) el.placeholder = autoShort() || 'Automatique'; }
+  function updChapterLabels() {
+    var a = sub(T.ch1) || 'Chapitre 1', b = sub(T.ch2) || 'Chapitre 2';
+    if (slotTitleEls[0]) slotTitleEls[0].textContent = a;
+    if (slotTitleEls[1]) slotTitleEls[1].textContent = b;
+    document.getElementById('lbl24').firstChild.nodeValue = 'Ajouter photos · ' + a;
+    document.getElementById('lbl26').firstChild.nodeValue = 'Ajouter photos · ' + b;
+  }
+
+  var rafId = 0, saveTm = 0;
+  function queueRender() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(function () { rafId = 0; render(); });
+    clearTimeout(saveTm); saveTm = setTimeout(saveTexts, 400);
+  }
+  textPanel.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el.hasAttribute('data-key')) {
+      var k = el.getAttribute('data-key'); T[k] = el.value;
+      if (k === 'name') updShortPh();
+      if (k === 'ch1' || k === 'ch2' || k === 'short' || k === 'name') updChapterLabels();
+    } else if (el.hasAttribute('data-cap')) {
+      C[+el.getAttribute('data-cap')][el.getAttribute('data-kind')] = el.value;
+    } else { return; }
+    queueRender();
+  });
+  /* Quand on clique dans un champ, l'aperçu défile jusqu'à la page concernée */
+  textPanel.addEventListener('focusin', function (e) {
+    var pg = e.target.getAttribute && e.target.getAttribute('data-page');
+    if (!pg) return;
+    var host = document.body.getAttribute('data-view') === 'sheets' ? viewSheets : viewPages;
+    var pgEl = host.querySelector('.pg[data-n="' + pg + '"]');
+    var box = pgEl && pgEl.closest('.spreadbox, .sheetbox');
+    if (!box) return;
+    var reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (err) {}
+    box.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+  });
+  document.getElementById('resetTexts').addEventListener('click', function () {
+    if (!window.confirm('Remettre tous les textes d\u2019origine ? Tes modifications de texte seront perdues.')) return;
+    T = clone(DEF_T); C = clone(DEF_C);
+    syncTextInputs(); render(); saveTexts();
+  });
+
+  /* ---------- Gestion des photos ---------- */
+  function shrink(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () {
+        var sc = Math.min(1, 1800 / Math.max(im.width, im.height));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(im.width * sc));
+        c.height = Math.max(1, Math.round(im.height * sc));
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL('image/jpeg', 0.9));
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); rej(new Error('format')); };
+      im.src = url;
+    });
+  }
+  function setSlot(i, data) { custom[i] = data; photos[i] = data || placeholders[i]; }
+
+  function idb(cb) {
+    try {
+      var rq = indexedDB.open('livre-souvenirs-impression', 1);
+      rq.onupgradeneeded = function () { rq.result.createObjectStore('kv'); };
+      rq.onsuccess = function () { cb(rq.result); };
+      rq.onerror = function () {};
+    } catch (err) {}
+  }
+  function savePhotos() {
+    idb(function (db) {
+      try { db.transaction('kv', 'readwrite').objectStore('kv').put({ custom: custom }, 'state'); } catch (err) {}
+    });
+  }
+  function saveTexts() {
+    idb(function (db) {
+      try { db.transaction('kv', 'readwrite').objectStore('kv').put({ T: T, C: C }, 'texts'); } catch (err) {}
+    });
+  }
+  function load() {
+    idb(function (db) {
+      try {
+        var tr = db.transaction('kv'), st = tr.objectStore('kv');
+        var g1 = st.get('state'), g2 = st.get('texts');
+        tr.oncomplete = function () {
+          var v = g1.result, t = g2.result, i;
+          if (v && v.custom) { for (i = 0; i < v.custom.length && i < N; i++) { if (v.custom[i]) setSlot(i, v.custom[i]); } }
+          if (t && t.T) {
+            for (var k in DEF_T) { if (typeof t.T[k] === 'string') T[k] = t.T[k]; }
+            if (t.C && t.C.length) { for (i = 0; i < N; i++) { if (t.C[i]) C[i] = { t: String(t.C[i].t || ''), s: String(t.C[i].s || '') }; } }
+          }
+          syncTextInputs(); setPhotoVars(); render(); renderSlots(); updateCount();
+        };
+      } catch (err) {}
+    });
+  }
+  function missing() { var m = 0; for (var i = 0; i < N; i++) if (!custom[i]) m++; return m; }
+  function updateCount() {
+    if (msgEl.getAttribute('data-busy')) return;
+    var m = missing();
+    msgEl.textContent = m === 0 ? 'Les 10 photos sont en place.' :
+      (N - m) + ' photo' + (N - m > 1 ? 's' : '') + ' sur 10 ajoutée' + (N - m > 1 ? 's' : '') + '. Il reste ' + m + ' photo' + (m > 1 ? 's' : '') + ' d\u2019exemple.';
+  }
+
+  function renderSlots() {
+    slotsEl.innerHTML = '';
+    slotTitleEls = [];
+    var grids = [];
+    [0, 1].forEach(function () {
+      var sec = document.createElement('div');
+      var h = document.createElement('p'); h.className = 'slot-title';
+      var gr = document.createElement('div'); gr.className = 'slot-grid';
+      sec.appendChild(h); sec.appendChild(gr); slotsEl.appendChild(sec); grids.push(gr); slotTitleEls.push(h);
+    });
+    for (var i = 0; i < N; i++) {
+      (function (n) {
+        var w = document.createElement('div'); w.className = 'slot';
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'thumb' + (custom[n] ? ' custom' : '');
+        b.style.backgroundImage = 'url("' + photos[n] + '")';
+        b.setAttribute('aria-label', 'Photo ' + (n + 1) + (custom[n] ? ', la tienne. Remplacer' : ', exemple. Remplacer'));
+        b.innerHTML = '<span>' + (n + 1) + '</span>';
+        b.addEventListener('click', function () { targetSlot = n; slotInput.value = ''; slotInput.click(); });
+        w.appendChild(b);
+        if (custom[n]) {
+          var r = document.createElement('button');
+          r.type = 'button'; r.className = 'rm'; r.textContent = '×';
+          r.setAttribute('aria-label', 'Retirer la photo ' + (n + 1));
+          r.addEventListener('click', function () { setSlot(n, null); afterChange(); say('Photo retirée.'); });
+          w.appendChild(r);
+        }
+        grids[n < 5 ? 0 : 1].appendChild(w);
+      })(i);
+    }
+    updChapterLabels();
+  }
+  function afterChange() { setPhotoVars(); renderSlots(); savePhotos(); }
+
+  function addFiles(list, start, lo, hi) {
+    if (lo === undefined) { lo = 0; hi = N; }
+    var files = Array.prototype.slice.call(list || []).filter(function (f) { return !f.type || f.type.indexOf('image/') === 0; });
+    if (!files.length) { say('Aucune image reconnue dans ce choix.'); return; }
+    var order = [];
+    if (start >= 0) order.push(start);
+    for (var i = lo; i < hi; i++) { if (order.indexOf(i) < 0 && !custom[i]) order.push(i); }
+    var jobs = [];
+    files.forEach(function (f, k) { if (k < order.length) jobs.push({ f: f, i: order[k] }); });
+    if (!jobs.length) { say('Toutes les places sont prises ici. Touche une vignette pour en remplacer une.'); return; }
+    msgEl.setAttribute('data-busy', '1'); say('Chargement…');
+    Promise.all(jobs.map(function (j) {
+      return shrink(j.f).then(function (d) { setSlot(j.i, d); return true; }, function () { return false; });
+    })).then(function (r) {
+      var ok = r.filter(Boolean).length, bad = r.length - ok, extra = files.length - jobs.length;
+      var t = ok + (ok > 1 ? ' photos ajoutées.' : ' photo ajoutée.');
+      if (bad) t += ' ' + bad + ' illisible' + (bad > 1 ? 's' : '') + ' (format non pris en charge).';
+      if (extra > 0) t += ' ' + extra + ' en trop, ignorée' + (extra > 1 ? 's' : '') + '.';
+      afterChange(); msgEl.removeAttribute('data-busy'); say(t);
+    });
+  }
+
+  photoInput24.addEventListener('change', function (e) { addFiles(e.target.files, -1, 0, 5); photoInput24.value = ''; });
+  photoInput26.addEventListener('change', function (e) { addFiles(e.target.files, -1, 5, 10); photoInput26.value = ''; });
+  slotInput.addEventListener('change', function (e) { addFiles(e.target.files, targetSlot); slotInput.value = ''; });
+  document.getElementById('resetPhotos').addEventListener('click', function () {
+    for (var i = 0; i < N; i++) setSlot(i, null);
+    afterChange(); say('Photos d\u2019exemple remises.');
+  });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { e.preventDefault(); document.body.classList.add('drop-on'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { e.preventDefault(); if (ev === 'drop' || e.target === document.documentElement) document.body.classList.remove('drop-on'); });
+  });
+  document.addEventListener('drop', function (e) { addFiles(e.dataTransfer && e.dataTransfer.files, -1); });
+
+  /* ---------- Options, aperçu, impression ---------- */
+  document.getElementById('optSafe').addEventListener('change', function (e) { document.body.classList.toggle('safe', e.target.checked); });
+  document.getElementById('optCream').addEventListener('change', function (e) { document.body.classList.toggle('nocream', !e.target.checked); });
+
+  var vPages = document.getElementById('vPages'), vSheets = document.getElementById('vSheets');
+  function setView(v) {
+    document.body.setAttribute('data-view', v);
+    vPages.setAttribute('aria-pressed', v === 'pages' ? 'true' : 'false');
+    vSheets.setAttribute('aria-pressed', v === 'sheets' ? 'true' : 'false');
+  }
+  vPages.addEventListener('click', function () { setView('pages'); });
+  vSheets.addEventListener('click', function () { setView('sheets'); });
+
+  document.getElementById('printBtn').addEventListener('click', function () {
+    var m = missing();
+    if (m && !window.confirm('Il reste ' + m + ' photo' + (m > 1 ? 's' : '') + ' d\u2019exemple dans le livre. Imprimer quand même ?')) return;
+    var go = function () { window.print(); };
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(go); } else { go(); }
+  });
+
+  /* ---------- Aperçu animé : envoie photos et textes au fichier d'animation ---------- */
+  var animWin = null;
+  function animPayload() { return { type: 'livre-data', T: T, C: C, photos: photos }; }
+  window.addEventListener('message', function (e) {
+    if (animWin && e.source === animWin && e.data && e.data.type === 'livre-ready') animWin.postMessage(animPayload(), '*');
+  });
+  document.getElementById('animBtn').addEventListener('click', function () {
+    if (animWin && !animWin.closed) {
+      animWin.postMessage(animPayload(), '*');
+      animWin.focus();
+      return;
+    }
+    animWin = window.open('Livre-des-Souvenirs-Animation.html', '_blank');
+    if (!animWin) { window.alert('Le navigateur a bloqué l\u2019ouverture de la fenêtre. Autorise les fenêtres pop-up pour cette page, puis clique de nouveau.'); }
+  });
+
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
+  buildTextPanel();
+  setPhotoVars();
+  render();
+  renderSlots();
+  fit();
+  updateCount();
+  load();
+})();
+</script>
+</body>
+</html>

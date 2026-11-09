@@ -19,6 +19,12 @@
   --cover: #4b1020;
   --cover-hi: #7b2237;
   --gold: #e0bc6a;
+  --gold-rgb: 224,188,106;
+  --inside: #3a0c19;
+  --foil1: #f3dc9a;
+  --foil2: #c99a3e;
+  --foil3: #f6e5ae;
+  --foil4: #b88a30;
   --holo: #6ff2e2;
   --line: rgba(233, 228, 216, .16);
   --font-display: "Bodoni Moda", "Didot", Georgia, serif;
@@ -141,11 +147,11 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
   content: ""; position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.cover-frame { position: absolute; inset: calc(var(--u) * 4); border: 1px solid rgba(224,188,106,.7); pointer-events: none; }
-.cover-frame::after { content: ""; position: absolute; inset: calc(var(--u) * 1.4); border: 1px solid rgba(224,188,106,.35); }
+.cover-frame { position: absolute; inset: calc(var(--u) * 4); border: 1px solid rgba(var(--gold-rgb), .7); pointer-events: none; }
+.cover-frame::after { content: ""; position: absolute; inset: calc(var(--u) * 1.4); border: 1px solid rgba(var(--gold-rgb), .35); }
 .spine-shade { position: absolute; inset: 0 auto 0 0; width: 9%; background: linear-gradient(90deg, rgba(0,0,0,.45), transparent); pointer-events: none; }
 .spine-shade.r { inset: 0 0 0 auto; background: linear-gradient(270deg, rgba(0,0,0,.45), transparent); }
-.foil { color: #d9b25a; background: linear-gradient(120deg, #f3dc9a, #c99a3e 45%, #f6e5ae 60%, #b88a30); -webkit-background-clip: text; background-clip: text; }
+.foil { color: var(--foil2); background: linear-gradient(120deg, var(--foil1), var(--foil2) 45%, var(--foil3) 60%, var(--foil4)); -webkit-background-clip: text; background-clip: text; }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) { .foil { color: transparent; } }
 .cover-top, .cover-bottom { font: 500 calc(var(--u) * 3) / 1.3 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; position: relative; max-width: 100%; overflow-wrap: anywhere; }
 .cover-mid { display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 2.4); position: relative; max-width: 100%; }
@@ -153,15 +159,15 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
 .score { font: 700 calc(var(--u) * 22) / 1 var(--font-display); letter-spacing: -.02em; padding-bottom: calc(var(--u) * 1); }
 .cover-mid .joy { font: italic 500 calc(var(--u) * 7.5) / 1.1 var(--font-display); }
 .cover-mid .anni { font: 700 calc(var(--u) * 10.4) / 1.05 var(--font-display); letter-spacing: -.01em; }
-.cover-mid .rule { width: calc(var(--u) * 22); height: 1px; background: rgba(224,188,106,.7); }
+.cover-mid .rule { width: calc(var(--u) * 22); height: 1px; background: rgba(var(--gold-rgb), .7); }
 .cover-mid .nm { font: italic 500 calc(var(--u) * 8) / 1.1 var(--font-display); }
 
 /* Page de garde */
 .inside-face {
   background:
-    repeating-linear-gradient(45deg, rgba(224,188,106,.12) 0 1px, transparent 1px 9px),
-    repeating-linear-gradient(-45deg, rgba(224,188,106,.12) 0 1px, transparent 1px 9px),
-    #3a0c19;
+    repeating-linear-gradient(45deg, rgba(var(--gold-rgb), .12) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(-45deg, rgba(var(--gold-rgb), .12) 0 1px, transparent 1px 9px),
+    var(--inside);
   align-items: center; justify-content: center;
 }
 .label-card {
@@ -208,6 +214,17 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
 .endp .big { font: italic 500 calc(var(--u) * 9) / 1.1 var(--font-display); text-wrap: balance; overflow-wrap: anywhere; }
 .endp .tiny { font: 400 calc(var(--u) * 3.4) / 1.3 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; opacity: .6; overflow-wrap: anywhere; }
 
+/* Thèmes */
+[hidden] { display: none !important; }
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.swatch { flex-direction: column; gap: 8px; padding: 10px 6px; letter-spacing: .04em; font-size: 11px; line-height: 1.25; text-align: center; text-transform: none; }
+.swatch i { display: block; width: 100%; height: 34px; border-radius: 3px; border: 2px solid; }
+input[type="color"] { width: 64px; height: 44px; padding: 3px; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
+select { font: 500 13px/1 var(--font-mono); letter-spacing: .06em; color: var(--fg); background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 3px; min-height: 44px; padding: 0 12px; max-width: 100%; }
+select option { color: #111; background: #fff; }
+select:focus-visible { outline: 2px solid var(--holo); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
 /* ---------- Impression ---------- */
 @page { size: 297mm 210mm; margin: 0; }
 @media print {
@@ -252,8 +269,18 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
         <div class="row"><button type="button" id="resetTexts">Remettre les textes d'origine</button></div>
       </section>
 
+      <section class="panel" aria-label="Apparence">
+        <h2>3 · Apparence</h2>
+        <div class="swatches" id="swatches" role="group" aria-label="Thème de la couverture"></div>
+        <div id="customTheme" class="row" hidden>
+          <label class="field"><span>Couleur de la couverture</span><input type="color" id="themeColor" value="#4b1020"></label>
+          <div class="field"><span>Teinte des lettres</span><div class="seg" id="foilSeg" role="group" aria-label="Teinte des lettres"></div></div>
+        </div>
+        <p class="hint">Le thème s\u2019applique à la couverture, à la page de garde et à la 4e de couverture, à l\u2019impression comme dans l\u2019animation.</p>
+      </section>
+
       <section class="panel" aria-label="Options d'impression">
-        <h2>3 · Options</h2>
+        <h2>4 · Options</h2>
         <label class="check"><input type="checkbox" id="optSafe" checked><span>Marge de sécurité de 5 mm<small>Recommandé : la plupart des imprimantes ne vont pas jusqu'au bord de la feuille. La marge est laissée sur les bords extérieurs, jamais au pli.</small></span></label>
         <label class="check"><input type="checkbox" id="optCream" checked><span>Fond crème sur les pages<small>Décoche pour des pages blanches et économiser l'encre.</small></span></label>
       </section>
@@ -265,7 +292,7 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
           <button type="button" id="vPages" aria-pressed="true">Livre (ordre de lecture)</button>
           <button type="button" id="vSheets" aria-pressed="false">Feuilles à imprimer (12 faces)</button>
         </div>
-        <div class="seg"><button type="button" id="animBtn">Prévisualiser l’animation</button><button type="button" id="printBtn" class="primary">Imprimer / Enregistrer en PDF</button></div>
+        <div class="seg"><label class="sr-only" for="animStyle">Style d\u2019animation</label><select id="animStyle"><option value="book">Animation : livre 3D</option><option value="film">Animation : film d\u2019hommage</option><option value="polaroid">Animation : polaroïds</option></select><button type="button" id="animBtn">Prévisualiser l’animation</button><button type="button" id="printBtn" class="primary">Imprimer / Enregistrer en PDF</button></div>
       </div>
 
       <p class="hint ui">Le bouton « Prévisualiser l’animation » ouvre le fichier <b>Livre-des-Souvenirs-Animation.html</b> : garde les deux fichiers dans le même dossier.</p>
@@ -576,7 +603,7 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
   }
   function saveTexts() {
     idb(function (db) {
-      try { db.transaction('kv', 'readwrite').objectStore('kv').put({ T: T, C: C }, 'texts'); } catch (err) {}
+      try { db.transaction('kv', 'readwrite').objectStore('kv').put({ T: T, C: C, TH: TH, vars: themeVars(), style: document.getElementById('animStyle').value }, 'texts'); } catch (err) {}
     });
   }
   function load() {
@@ -591,7 +618,9 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
             for (var k in DEF_T) { if (typeof t.T[k] === 'string') T[k] = t.T[k]; }
             if (t.C && t.C.length) { for (i = 0; i < N; i++) { if (t.C[i]) C[i] = { t: String(t.C[i].t || ''), s: String(t.C[i].s || '') }; } }
           }
-          syncTextInputs(); setPhotoVars(); render(); renderSlots(); updateCount();
+          if (t && t.TH) { TH.preset = String(t.TH.preset || TH.preset); TH.color = String(t.TH.color || TH.color); TH.foil = String(t.TH.foil || TH.foil); }
+          if (t && t.style) document.getElementById('animStyle').value = t.style;
+          syncTextInputs(); setPhotoVars(); applyTheme(true); render(); renderSlots(); updateCount();
         };
       } catch (err) {}
     });
@@ -695,9 +724,78 @@ body.safe .pg[data-side="R"] .pg-in { inset: calc(var(--mm) * 5) calc(var(--mm) 
     if (document.fonts && document.fonts.ready) { document.fonts.ready.then(go); } else { go(); }
   });
 
+  /* ---------- Thèmes de la couverture ---------- */
+  var THEMES = [
+    { id: 'bordeaux', name: 'Bordeaux & or', cover: '#4b1020', hi: '#7b2237', inside: '#3a0c19', foil: 'or' },
+    { id: 'nuit', name: 'Bleu nuit & argent', cover: '#0f1f3d', hi: '#27477f', inside: '#0a1530', foil: 'argent' },
+    { id: 'foret', name: 'Vert forêt & or', cover: '#0f3a2a', hi: '#21694d', inside: '#0a2a1e', foil: 'or' },
+    { id: 'noir', name: 'Noir & or rose', cover: '#18161b', hi: '#37323d', inside: '#0f0e12', foil: 'rose' },
+    { id: 'prune', name: 'Prune & or', cover: '#3b1a4f', hi: '#6a3a8a', inside: '#2a1038', foil: 'or' },
+    { id: 'poudre', name: 'Rose poudré & or', cover: '#b4566f', hi: '#dc8ea5', inside: '#8f3d57', foil: 'or' },
+    { id: 'perso', name: 'Couleur perso' }
+  ];
+  var FOILS = {
+    or: { label: 'Or', rgb: '224,188,106', gold: '#e0bc6a', f: ['#f3dc9a', '#c99a3e', '#f6e5ae', '#b88a30'] },
+    argent: { label: 'Argent', rgb: '205,214,230', gold: '#cdd6e6', f: ['#f4f7fb', '#aab4c4', '#ffffff', '#8893a6'] },
+    rose: { label: 'Or rose', rgb: '232,184,160', gold: '#e8b8a0', f: ['#f7d4c2', '#d99a7e', '#fde6d9', '#b97a60'] },
+    blanc: { label: 'Blanc', rgb: '245,240,230', gold: '#f5f0e6', f: ['#ffffff', '#e4dccb', '#ffffff', '#cfc6b3'] }
+  };
+  var TH = { preset: 'bordeaux', color: '#4b1020', foil: 'or' };
+  function mix(hex, to, a) {
+    var h = hex.replace('#', ''); if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h, 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255, t = to === 'w' ? 255 : 0;
+    function m(c) { return Math.round(c + (t - c) * a); }
+    return '#' + [m(r), m(g), m(b)].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+  }
+  function resolveTheme() {
+    var th = THEMES.filter(function (x) { return x.id === TH.preset; })[0] || THEMES[0], cover, hi, inside, foil;
+    if (th.id === 'perso') { cover = /^#[0-9a-f]{6}$/i.test(TH.color) ? TH.color : '#4b1020'; hi = mix(cover, 'w', .28); inside = mix(cover, 'k', .3); foil = TH.foil; }
+    else { cover = th.cover; hi = th.hi; inside = th.inside; foil = th.foil; }
+    return { cover: cover, hi: hi, inside: inside, foil: FOILS[foil] || FOILS.or };
+  }
+  function themeVars() {
+    var r = resolveTheme(), f = r.foil;
+    return { '--cover': r.cover, '--cover-hi': r.hi, '--inside': r.inside, '--gold': f.gold, '--gold-rgb': f.rgb,
+      '--foil1': f.f[0], '--foil2': f.f[1], '--foil3': f.f[2], '--foil4': f.f[3] };
+  }
+  function buildThemeUI() {
+    var sw = document.getElementById('swatches'), h = '';
+    THEMES.forEach(function (th) {
+      var cover = th.cover || TH.color, hi = th.hi || mix(TH.color, 'w', .28), fo = FOILS[th.foil || TH.foil] || FOILS.or;
+      h += '<button type="button" class="swatch" data-theme="' + th.id + '" aria-pressed="false">' +
+        '<i style="background:linear-gradient(135deg,' + hi + ',' + cover + ');border-color:' + fo.gold + '"></i>' + th.name + '</button>';
+    });
+    sw.innerHTML = h;
+    var fs = document.getElementById('foilSeg'), g = '';
+    Object.keys(FOILS).forEach(function (k) { g += '<button type="button" data-foil="' + k + '" aria-pressed="false">' + FOILS[k].label + '</button>'; });
+    fs.innerHTML = g;
+  }
+  function applyTheme(fromLoad) {
+    var v = themeVars(), el = document.getElementById('views');
+    for (var k in v) { if (v.hasOwnProperty(k)) el.style.setProperty(k, v[k]); }
+    var sws = document.querySelectorAll('#swatches .swatch');
+    for (var i = 0; i < sws.length; i++) sws[i].setAttribute('aria-pressed', sws[i].getAttribute('data-theme') === TH.preset ? 'true' : 'false');
+    var fb = document.querySelectorAll('#foilSeg button');
+    for (i = 0; i < fb.length; i++) fb[i].setAttribute('aria-pressed', fb[i].getAttribute('data-foil') === TH.foil ? 'true' : 'false');
+    document.getElementById('customTheme').hidden = TH.preset !== 'perso';
+    document.getElementById('themeColor').value = /^#[0-9a-f]{6}$/i.test(TH.color) ? TH.color : '#4b1020';
+    if (!fromLoad) { clearTimeout(saveTm); saveTm = setTimeout(saveTexts, 300); }
+  }
+  document.getElementById('swatches').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-theme]'); if (!b) return;
+    TH.preset = b.getAttribute('data-theme'); applyTheme();
+  });
+  document.getElementById('foilSeg').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-foil]'); if (!b) return;
+    TH.foil = b.getAttribute('data-foil'); applyTheme();
+  });
+  document.getElementById('themeColor').addEventListener('input', function (e) { TH.color = e.target.value; applyTheme(); });
+  document.getElementById('animStyle').addEventListener('change', function () { clearTimeout(saveTm); saveTm = setTimeout(saveTexts, 300); });
+  buildThemeUI(); applyTheme(true);
+
   /* ---------- Aperçu animé : envoie photos et textes au fichier d'animation ---------- */
   var animWin = null;
-  function animPayload() { return { type: 'livre-data', T: T, C: C, photos: photos }; }
+  function animPayload() { return { type: 'livre-data', T: T, C: C, photos: photos, vars: themeVars(), style: document.getElementById('animStyle').value }; }
   window.addEventListener('message', function (e) {
     if (animWin && e.source === animWin && e.data && e.data.type === 'livre-ready') animWin.postMessage(animPayload(), '*');
   });
